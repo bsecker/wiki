@@ -4,20 +4,13 @@ This is mostly useful for gitlab wiki (Gollum) based wikis.
 """
 
 import argparse, os
+import logging
 from typing import List, Tuple
 
-
-def exclude_directories(dirs: List[str], excludes: List[str]) -> List[str]:
-    """
-    Exclude a set of directories from the original list
-    :param dirs: list of directories
-    :param excludes: list of directories to exclude
-    :return: list with excluded directories
-    """
-    return [d for d in dirs if d not in excludes]
+logging.basicConfig(level=logging.DEBUG)
 
 
-def parse_args():
+def parse_args() -> Tuple[List[str], int, List[int], str]:
     """
     Parse external arguments
     :return: tuple of relevant args
@@ -39,6 +32,16 @@ def parse_args():
     return args.exclude, args.max_depth, args.hide_files, root_dir
 
 
+def exclude_directories(dirs: List[str], excludes: List[str]) -> List[str]:
+    """
+    Exclude a set of directories from the original list
+    :param dirs: list of directories
+    :param excludes: list of directories to exclude
+    :return: list with excluded directories
+    """
+    return [d for d in dirs if d not in excludes]
+
+
 def get_directories(root: str) -> Tuple[Tuple[str, List[str], List[str]]]:
     """
     :return immutable list of 3 element tuples representing the directory, directory folders and directory files for each
@@ -46,22 +49,29 @@ def get_directories(root: str) -> Tuple[Tuple[str, List[str], List[str]]]:
     :param root: directory where to start the recursive search from
     """
 
-    # TODO this is very imperative - how to do in a functional style?
+    # TODO this is quite imperative - how to do in a functional style?
     dirs = []
     for item in os.walk(root):
         dirs.append(item)
 
     return tuple(dirs)
 
+
 def main():
     # get args
     excludes, max_depth, hide_files, root_dir = parse_args()
 
-    print(f"Creating sidebar starting from {root_dir}")
+    # log information message for root dir
+    logging.info(f"Creating sidebar starting from {root_dir}")
 
-    for i in get_directories(root_dir):
-        print(i)
+    # get directories
+    dirs: tuple = get_directories(root_dir)
 
+    # exclude directories that have an "excluded directory" in them
+    dirs_filtered = list(filter(lambda x: not any(os.sep + _dir in x[0] for _dir in excludes), dirs))
+
+    for i in dirs_filtered:
+        print(i[0])
 
 if __name__ == '__main__':
     main()
