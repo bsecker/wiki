@@ -1,22 +1,43 @@
+import pytest
+
 from sidebar_generator import exclude_directories
 
+MOCK_OS_WALK = tuple([
+    ('home/dir1', [""], [""]),
+    ('home/dir2', [""], [""]),
+    ('home/dir3', [""], [""]),
+    ('home/dir4', [""], [""]),
+    ]
+)
 
 def test_exclude_some():
-    a = list("abcdef")
-    exclude = ["a", "b", "c"]
+    exclude = ["dir1", "dir2"]
 
-    assert exclude_directories(a, exclude) == ["d", "e", "f"]
-
+    assert exclude_directories(MOCK_OS_WALK, exclude) == tuple([
+        ('home/dir3', [""], [""]),
+        ('home/dir4', [""], [""]),
+        ]
+    )
 
 def test_exclude_none():
-    a = list("abcdef")
+    exclude = []
+
+    assert exclude_directories(MOCK_OS_WALK, exclude) == tuple([
+        ('home/dir1', [""], [""]),
+        ('home/dir2', [""], [""]),
+        ('home/dir3', [""], [""]),
+        ('home/dir4', [""], [""]),
+    ])
+
+def test_exclude_empty_string():
+    # this should never happen
     exclude = [""]
 
-    assert exclude_directories(a, exclude) == list("abcdef")
-
+    with pytest.raises(AssertionError):
+        exclude_directories(MOCK_OS_WALK, exclude)
 
 def test_exclude_all():
-    a = list("abcdef")
-    exclude = list("abcdef")
+    exclude = ['dir1', 'dir2', 'dir3', 'dir4']
 
-    assert exclude_directories(a, exclude) == []
+    assert len(exclude_directories(MOCK_OS_WALK, exclude)) == 0
+
