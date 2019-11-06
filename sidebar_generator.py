@@ -5,9 +5,14 @@ This is mostly useful for gitlab wiki (Gollum) based wikis.
 
 import argparse, os
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, TypeVar, Any
 
 logging.basicConfig(level=logging.DEBUG)
+
+# Define type that represents results from recursive directory walk.
+# The immutable tuple contains tuples in the form of (dir name, list of subdirs, list of files)
+dirtuple = TypeVar('dirtuple', bound=Tuple[Tuple[str, List[str], List[str]]])
+
 
 def parse_args() -> Tuple[List[str], int, List[int], str]:
     """
@@ -31,7 +36,6 @@ def parse_args() -> Tuple[List[str], int, List[int], str]:
     return args.exclude, args.max_depth, args.hide_files, root_dir
 
 
-# Todo is there any way to refactor dirs type into some form of variable?
 # UPDATE look into TypeVar?
 def exclude_directories(dirs: Tuple[Tuple[str, List[str], List[str]]], excludes: List[str]) \
         -> Tuple[Tuple[str, List[str], List[str]]]:
@@ -49,18 +53,56 @@ def exclude_directories(dirs: Tuple[Tuple[str, List[str], List[str]]], excludes:
     return tuple(filter(lambda x: not any(os.sep + _dir in x[0] for _dir in excludes), dirs))
 
 
-def get_directories(root: str) -> Tuple[Tuple[str, List[str], List[str]]]:
+def get_directories(root: str) -> dirtuple:
     """
     :return immutable list of 3 element tuples representing the directory, directory folders and directory files for each
     sub-directory within the root directory.
     :param root: directory where to start the recursive search from
     """
 
+
+    # sort dirs and files in place so that os.walk recurses into them in alphabetical order
+    # https://stackoverflow.com/questions/6670029/can-i-force-python3s-os-walk-to-visit-directories-in-alphabetical-order-how
     dirs = []
-    for item in os.walk(root):
-        dirs.append(item)
+    for path, subdirs, files in os.walk(root):
+        subdirs.sort()
+        files.sort()
+        dirs.append((path, subdirs, files))
+
+    # can't do it this way
+    # dirs = [(root, sorted(dirs), items) for root, dirs, items in os.walk(root, topdown=True)]
 
     return tuple(dirs)
+
+
+def map_dirtuple_files_to_lines(dirtuples: Any) -> Any:
+    """
+    Map each dirtuple from (root, [dirs..], [file1, file2, file3] to (root/file1); (root/file2), ..etc
+    :param dirtuples: todo
+    :return: todo
+    """
+
+    # convert each tuple into a list containing the root+/+file for each file in the tuple,
+    # append that list onto the root so that the directory name is preserved by itself
+    tuples = map(lambda item: [item[0]] + [item[0]+os.sep+file for file in item[2]], dirtuples)
+
+    # flatten the list
+    # https://stackoverflow.com/questions/952914/how-to-make-a-flat-list-out-of-list-of-lists
+    tuples_flat = [item for sublist in tuples for item in sublist]
+
+    return tuple(tuples_flat)
+
+
+def indent_items(items):
+    """
+    todo
+    :param items:
+    :return:
+    """
+
+    indent = lambda path: (path.count(os.sep) -1) * '  ' + path
+
+    return tuple(map(indent, items))
 
 
 
@@ -77,8 +119,21 @@ def main():
     # filter directories
     dirs_filtered = exclude_directories(dirs, excludes)
 
-    for i in dirs_filtered:
-        print(i[0])
+    # add files to list
+    items = map_dirtuple_files_to_lines(dirs_filtered)
+
+    # Remove root dir from each item
+    items_removed_root = list(map(lambda line: line.replace(root_dir, ""), items))
+
+    # create indents
+    items_indented = indent_items(items_removed_root)
+
+
+    # celebrate
+
+
+    for i in items_indented:
+        print(i)
 
 if __name__ == '__main__':
     main()
