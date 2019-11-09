@@ -1,6 +1,6 @@
 import pytest
 
-from sidebar_generator import exclude_directories
+from main.test_sidebar import exclude_directories
 
 MOCK_OS_WALK = tuple([
     ('home/dir1', [""], [""]),
