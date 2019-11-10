@@ -5,16 +5,12 @@ This is mostly useful for gitlab wiki (Gollum) based wikis.
 
 import argparse, os, yaml
 import logging
-from typing import List, Tuple, TypeVar, Any
+from typing import List, Tuple, Any
 
 from util.config_reader import get_wiki_root
 from util.helpers import get_directories, exclude_directories, Dir_tuple
 
 logging.basicConfig(level=logging.DEBUG)
-
-# Define type that represents results from recursive directory walk.
-# The immutable tuple contains tuples in the form of (dir name, list of subdirs, list of files)
-dirtuple = TypeVar('dirtuple', bound=Tuple[Tuple[str, List[str], List[str]]])
 
 
 def parse_args() -> Tuple[List[str], int, List[int], str]:
@@ -56,7 +52,7 @@ def expand_dirtuple_files_to_lines(dirtuples: Dir_tuple) -> Tuple[str]:
 
     # convert each tuple into a list containing the root+/+file for each file in the tuple,
     # append that list onto the root so that the directory name is preserved
-    tuples = map(lambda item: [item[0]] + [item[0]+os.sep+file for file in item[2]], dirtuples)
+    tuples = map(lambda item: [item[0]] + [item[0] + os.sep + file for file in item[2]], dirtuples)
 
     # flatten the list
     # https://stackoverflow.com/questions/952914/how-to-make-a-flat-list-out-of-list-of-lists
@@ -65,16 +61,18 @@ def expand_dirtuple_files_to_lines(dirtuples: Dir_tuple) -> Tuple[str]:
     return tuple(tuples_flat)
 
 
-def indent_items(items):
+def indent_items(items: Tuple[str]) -> Tuple[str]:
     """
-    todo
-    :param items:
-    :return:
+    Left-pad each item in the tuple by the number of slashes in the path
+    :param items: un-indented list
+    :return: indented list
     """
 
-    indent = lambda path: (path.count(os.sep) -1) * '  ' + path
+    # convert path to indented version
+    indented: Tuple[str] = tuple(map(lambda path: (path.count(os.sep) - 1) * '  ' + path, items))
 
-    return tuple(map(indent, items))
+    return indented
+
 
 
 
@@ -102,9 +100,9 @@ def main():
 
     # celebrate
 
-
     for i in items_indented:
         print(i)
+
 
 if __name__ == '__main__':
     main()
