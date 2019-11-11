@@ -129,6 +129,9 @@ def filter_contents_pages(items: Tuple[str]) -> Tuple[str]:
     return tuple(filter(filter_duplicates, items))
 
 
+def compose(*fns):
+    return functools.partial(functools.reduce, lambda v, fn: fn(v), fns)
+
 def main():
     # get args
     excludes, max_depth, hide_files, root_dir, save = parse_args()
@@ -136,48 +139,28 @@ def main():
     # log information message for root dir
     logging.info(f"Creating sidebar starting from {root_dir}")
 
-    # get directories
-    dirs: Dir_tuple = get_directories(root_dir)
-
-    # filter directories
-    dirs_filtered = exclude_directories(dirs, excludes)
-
-    # turn the dir_tuple into a flat list
-    items = expand_dirtuple_files_to_lines(dirs_filtered)
-
-    # Filter files
-    items_filtered_files = filter_files(hide_files, items)
-
-    # Filter "contents pages" out
-    # items_contents_removed = filter_contents_pages(items_filtered_files)
-
-    # for i in items_contents_removed:
-    #     print(i)
-
-    # Remove root dir from each item
-    items_removed_root = tuple(map(lambda line: line.replace(root_dir, ""), items_filtered_files))
-
-    # Filter to max level
-    items_filtered_level = tuple(filter(lambda line: line.count(os.sep) <= max_depth, items_removed_root))
-
-    # turn each item into links
-    items_links = map_to_links(items_filtered_level)
-
-    # create indents
-    items_indented = indent_items(items_links)
-
-    # add new lines
-    items_newlines = tuple(map(lambda x: x + '\n', items_indented))
+    # construct a pipeline of functions to transform the data into the sidebar.
+    sidebar = compose(
+        get_directories,
+        lambda exclude_dirs: exclude_directories(exclude_dirs, excludes),
+        expand_dirtuple_files_to_lines,
+        lambda hide: filter_files(hide_files, hide),
+        lambda remove_root: tuple(map(lambda line: line.replace(root_dir, ""), remove_root)),
+        lambda filter_level:tuple(filter(lambda line: line.count(os.sep) <= max_depth, filter_level)),
+        map_to_links,
+        indent_items,
+        lambda add_newlines: tuple(map(lambda x: x + '\n', add_newlines))
+    )(root_dir)
 
     # save to file, or print to console
     if save:
         with open(os.path.join(root_dir, "_Sidebar.md"), "w") as f:
-            f.writelines(items_newlines)
+            f.writelines(sidebar)
             logging.info(f"Wrote to _Sidebar.md in {root_dir}")
     else:
-        for i in items_newlines:
+        for line in sidebar:
             # don't add newlines because they are already added earlier
-            print(i, end="")
+            print(line, end="")
 
 
 if __name__ == '__main__':
