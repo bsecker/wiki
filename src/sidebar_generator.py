@@ -4,6 +4,7 @@ This is mostly useful for gitlab wiki (Gollum) based wikis.
 """
 
 import argparse, os, yaml
+import functools
 import logging
 from typing import List, Tuple, Any
 
@@ -90,7 +91,6 @@ def map_to_links(links: Tuple[str]) -> Tuple[str]:
 
     return tuple(map(convert, links))
 
-
 def filter_files(hide_files: bool, items: Tuple[str]) -> Tuple[str]:
     """
     Only return directories from the given :param items list.
@@ -149,13 +149,13 @@ def main():
     items_filtered_files = filter_files(hide_files, items)
 
     # Filter "contents pages" out
-    items_contents_removed = filter_contents_pages(items_filtered_files)
+    # items_contents_removed = filter_contents_pages(items_filtered_files)
 
-    for i in items_contents_removed:
-        print(i)
+    # for i in items_contents_removed:
+    #     print(i)
 
     # Remove root dir from each item
-    items_removed_root = tuple(map(lambda line: line.replace(root_dir, ""), items_contents_removed))
+    items_removed_root = tuple(map(lambda line: line.replace(root_dir, ""), items_filtered_files))
 
     # Filter to max level
     items_filtered_level = tuple(filter(lambda line: line.count(os.sep) <= max_depth, items_removed_root))
