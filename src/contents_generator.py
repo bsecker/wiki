@@ -47,7 +47,7 @@ def main():
     # filter some directories
     directories_filtered: Dir_tuple = exclude_directories(directories, excludes)
 
-    for root, dirs, files in directories:
+    for root, dirs, files in directories_filtered:
 
         # get path of each file to write to
         filename = os.path.basename(os.path.normpath(root))
