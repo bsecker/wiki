@@ -26,7 +26,8 @@ def parse_args() -> Tuple[List[str], int, List[int], str, bool]:
     parser.add_argument("--max-depth", help="maximum depth to build tree", default=10, type=int)
     parser.add_argument("--hide-files", action="store_true",
                         help="Only build the sidebar using directories, hiding files")
-    parser.add_argument("--save", action="store_true", help="save to _Sidebar.md in wiki directory, instead out outputting to stdout")
+    parser.add_argument("--save", action="store_true",
+                        help="save to _Sidebar.md in wiki directory, instead out outputting to stdout")
     parser.add_argument("--wiki", help="wiki root directory")
     args = parser.parse_args()
 
@@ -98,6 +99,34 @@ def filter_files(hide_files: bool, items: Tuple[str]) -> Tuple[str]:
     """
     if hide_files:
         return tuple(filter(lambda item: os.path.isdir(item), items))
+    return items
+
+
+def filter_contents_pages(items: Tuple[str]) -> Tuple[str]:
+    """
+    Filter out files that have the same name as the directory they are in.
+    For example, filter out /root/example/example.md
+
+    This is used because gitlab wiki ui doesn't like folders
+    :param items: original list
+    :return: modified list with items removed
+    """
+
+    def filter_duplicates(item):
+
+        # only filter out files
+        if not os.path.isfile(item):
+            return True
+
+        # get filename from end of path by splitting away extension(s)
+        filename = os.path.basename(item).split(".")[0]
+
+        # get directory name
+        directory = os.path.dirname(item)
+
+        return not directory.endswith(filename)
+
+    return tuple(filter(filter_duplicates, items))
 
 
 def main():
@@ -119,8 +148,14 @@ def main():
     # Filter files
     items_filtered_files = filter_files(hide_files, items)
 
+    # Filter "contents pages" out
+    items_contents_removed = filter_contents_pages(items_filtered_files)
+
+    for i in items_contents_removed:
+        print(i)
+
     # Remove root dir from each item
-    items_removed_root = tuple(map(lambda line: line.replace(root_dir, ""), items_filtered_files))
+    items_removed_root = tuple(map(lambda line: line.replace(root_dir, ""), items_contents_removed))
 
     # Filter to max level
     items_filtered_level = tuple(filter(lambda line: line.count(os.sep) <= max_depth, items_removed_root))
@@ -143,7 +178,6 @@ def main():
         for i in items_newlines:
             # don't add newlines because they are already added earlier
             print(i, end="")
-
 
 
 if __name__ == '__main__':
