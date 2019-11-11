@@ -3,10 +3,17 @@ Config reader parses YAML config file and returns data
 """
 
 import yaml, os
+from pathlib import Path
 
-# try open and validate yaml file, raising error if failed
-with open("config.yml", 'r') as stream:
-    config = yaml.load(stream) or {}
+
+def get_project_root() -> Path:
+    """
+    Get project root directory
+    :return: Path
+    """
+
+    return Path(__file__).parent.parent
+
 
 def get_wiki_root():
     """
@@ -26,3 +33,6 @@ def get_wiki_root():
     raise IOError(f"Invalid or unknown directory {config['root_dir']}")
 
 
+# try open and validate yaml file, raising error if failed
+with open(os.path.join(get_project_root(), "config.yml"), 'r') as stream:
+    config = yaml.load(stream) or {}

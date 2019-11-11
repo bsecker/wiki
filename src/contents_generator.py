@@ -8,6 +8,9 @@ displays them properly.
 import logging, os, argparse
 from typing import List, Tuple, TypeVar, Any
 
+from util.config_reader import get_wiki_root
+from util.helpers import exclude_directories, get_directories, Dir_tuple
+
 logging.basicConfig(level=logging.DEBUG)
 
 def parse_args():
@@ -18,58 +21,55 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--readme", help="Name each file README.md")
-    parser.add_argument(help="wiki root directory", dest="wiki_root")
+    parser.add_argument("--readme", help="Name each file README.md", action="store_true")
+    parser.add_argument("--exclude", nargs='+', default=[],
+                        help='list of directories names to exclude. Includes all subdirectories. Defaults to config '
+                             'file exclusions')
+    parser.add_argument("--wiki", help="wiki root directory")
 
     args = parser.parse_args()
 
     # convert relative paths to absolute path
-    root_dir:str = os.path.abspath(os.path.expanduser(args.wiki_root))
+    root_dir = os.path.abspath(os.path.expanduser(args.wiki if args.wiki else get_wiki_root()))
 
-    return root_dir, args.readme
+    return root_dir, args.readme, args.exclude
 
-
-def exclude_directories(dirs: Tuple[Tuple[str, List[str], List[str]]],
-                        excludes: List[str]):
-    """
-    Exclude a set of directories from the original list
-    :return:
-    """
-
-    assert not any(x == "" for x in excludes), "excludes contains empty string"
-
-    # exclude directories that have an "excluded directory" in them
-    # use os.set + dir to look for parts of the string like "/images"
-    return tuple(filter(lambda x: not any(os.sep + _dir in x[0] for _dir in excludes), dirs))
-
-def get_directories(root: str):
-    """
-    :return immutable list of 3 element tuples representing the directory, directory folders and directory files for each
-    sub-directory within the root directory.
-    :param root: directory where to start the recursive search from
-    """
-
-
-    # sort dirs and files in place so that os.walk recurses into them in alphabetical order
-    # https://stackoverflow.com/questions/6670029/can-i-force-python3s-os-walk-to-visit-directories-in-alphabetical-order-how
-    dirs = []
-    for path, subdirs, files in os.walk(root):
-        subdirs.sort()
-        files.sort()
-        dirs.append((path, subdirs, files))
-
-    # can't do it this way
-    # dirs = [(root, sorted(dirs), items) for root, dirs, items in os.walk(root, topdown=True)]
-
-    return tuple(dirs)
 
 def main():
     # get the args
-    root_dir, readme = parse_args()
+    root_dir, readme, excludes = parse_args()
 
     logging.info(f"creating contents starting from {root_dir}")
 
     # get directories
+    directories: Dir_tuple  = get_directories(root_dir)
+
+    # filter some directories
+    directories_filtered: Dir_tuple = exclude_directories(directories, excludes)
+
+    for root, dirs, files in directories:
+
+        # get path of each file to write to
+        filename = os.path.basename(os.path.normpath(root))
+        file_path = f"{root}/{filename}.md" if not readme else f"{root}/README.md"
+
+        # make link for directories - link to the contents page within subdirectory
+        dirs_text = map(lambda dir: f" - **[{dir}](./{dir+'/'+dir})**\n", dirs)
+
+        # filter to markdown fiels and remove .md extension in link
+        files_text = map(lambda file: f" - [{file[:-3]}]({file[:-3]})", filter(lambda file: file.endswith(".md"), files))
+
+        # add dirs and files to text
+        contents = "## Subpages \n"
+        for i in dirs_text:
+            contents += i + '\n'
+        for i in files_text:
+            contents += i + '\n'
+
+        # write text to the file
+        with open(file_path, 'w') as file:
+            file.write(contents)
+            logging.info("wrote to " + file_path)
 
 if __name__ == "__main__":
     main()
