@@ -66,6 +66,8 @@ def main():
         for i in files_text:
             contents += i + '\n'
 
+        contents += "<!-- WARNING: auto generated contents page. Do not edit as it will get overwritten -->\n"
+
         # write text to the file
         with open(file_path, 'w') as file:
             file.write(contents)
