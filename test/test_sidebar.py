@@ -1,6 +1,7 @@
 import pytest
 
-from src.sidebar_generator import exclude_directories
+from util.helpers import exclude_directories
+from src.sidebar_generator import indent_items
 
 MOCK_OS_WALK = tuple([
     ('home/dir1', [""], [""]),
@@ -41,3 +42,10 @@ def test_exclude_all():
 
     assert len(exclude_directories(MOCK_OS_WALK, exclude)) == 0
 
+
+# def test_indent():
+#     input = ("root/1")
+#
+#     out = indent_items(input)
+#
+#     assert out == "  root/1"

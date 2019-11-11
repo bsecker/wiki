@@ -13,7 +13,7 @@ from util.helpers import get_directories, exclude_directories, Dir_tuple
 logging.basicConfig(level=logging.DEBUG)
 
 
-def parse_args() -> Tuple[List[str], int, List[int], str]:
+def parse_args() -> Tuple[List[str], int, List[int], str, bool]:
     """
     Parse external arguments (contains side effects)
     :return: tuple of relevant args
@@ -23,16 +23,17 @@ def parse_args() -> Tuple[List[str], int, List[int], str]:
     parser.add_argument("--exclude", nargs='+',
                         help='list of directories names to exclude. Includes all subdirectories. Defaults to config '
                              'file exclusions')
-    parser.add_argument("--max-depth", help="maximum depth to build tree", default=3, type=int)
+    parser.add_argument("--max-depth", help="maximum depth to build tree", default=10, type=int)
     parser.add_argument("--hide-files", action="store_true",
                         help="Only build the sidebar using directories, hiding files")
+    parser.add_argument("--save", action="store_true", help="save to _Sidebar.md in wiki directory, instead out outputting to stdout")
     parser.add_argument("--wiki", help="wiki root directory")
     args = parser.parse_args()
 
     # convert relative paths to absolute path
     root_dir = os.path.abspath(os.path.expanduser(args.wiki if args.wiki else get_wiki_root()))
 
-    return args.exclude, args.max_depth, args.hide_files, root_dir
+    return args.exclude, args.max_depth, args.hide_files, root_dir, args.save
 
 
 def expand_dirtuple_files_to_lines(dirtuples: Dir_tuple) -> Tuple[str]:
@@ -63,22 +64,45 @@ def expand_dirtuple_files_to_lines(dirtuples: Dir_tuple) -> Tuple[str]:
 
 def indent_items(items: Tuple[str]) -> Tuple[str]:
     """
-    Left-pad each item in the tuple by the number of slashes in the path
+    Left-pad and add bullet point to each item in the tuple by the number of slashes in the path
     :param items: un-indented list
     :return: indented list
     """
 
     # convert path to indented version
-    indented: Tuple[str] = tuple(map(lambda path: (path.count(os.sep) - 1) * '  ' + path, items))
+    indented: Tuple[str] = tuple(map(lambda path: ((path.count(os.sep) - 1) * '  ') + '- ' + path, items))
 
     return indented
 
 
+def map_to_links(links: Tuple[str]) -> Tuple[str]:
+    """
+    Map each item in the tuple to a markdown style link with the label being the end of the path
+    :param links:
+    :return:
+    """
+
+    def convert(item: str):
+        item = item.replace(".md", "")
+        label = os.path.basename(item)
+        return f"[{label}]({item})"
+
+    return tuple(map(convert, links))
+
+
+def filter_files(hide_files: bool, items: Tuple[str]) -> Tuple[str]:
+    """
+    Only return directories from the given :param items list.
+    :param hide_files: boolean flag from configuration
+    :return: new directories
+    """
+    if hide_files:
+        return tuple(filter(lambda item: os.path.isdir(item), items))
 
 
 def main():
     # get args
-    excludes, max_depth, hide_files, root_dir = parse_args()
+    excludes, max_depth, hide_files, root_dir, save = parse_args()
 
     # log information message for root dir
     logging.info(f"Creating sidebar starting from {root_dir}")
@@ -92,16 +116,34 @@ def main():
     # turn the dir_tuple into a flat list
     items = expand_dirtuple_files_to_lines(dirs_filtered)
 
+    # Filter files
+    items_filtered_files = filter_files(hide_files, items)
+
     # Remove root dir from each item
-    items_removed_root = list(map(lambda line: line.replace(root_dir, ""), items))
+    items_removed_root = tuple(map(lambda line: line.replace(root_dir, ""), items_filtered_files))
+
+    # Filter to max level
+    items_filtered_level = tuple(filter(lambda line: line.count(os.sep) <= max_depth, items_removed_root))
+
+    # turn each item into links
+    items_links = map_to_links(items_filtered_level)
 
     # create indents
-    items_indented = indent_items(items_removed_root)
+    items_indented = indent_items(items_links)
 
-    # celebrate
+    # add new lines
+    items_newlines = tuple(map(lambda x: x + '\n', items_indented))
 
-    for i in items_indented:
-        print(i)
+    # save to file, or print to console
+    if save:
+        with open(os.path.join(root_dir, "_Sidebar.md"), "w") as f:
+            f.writelines(items_newlines)
+            logging.info(f"Wrote to _Sidebar.md in {root_dir}")
+    else:
+        for i in items_newlines:
+            # don't add newlines because they are already added earlier
+            print(i, end="")
+
 
 
 if __name__ == '__main__':
