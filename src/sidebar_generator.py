@@ -3,10 +3,10 @@ Generates a _Sidebar.md that shows a tree of the wiki.
 This is mostly useful for gitlab wiki (Gollum) based wikis.
 """
 
-import argparse, os, yaml
+import argparse, os
 import functools
 import logging
-from typing import List, Tuple, Any
+from typing import List, Tuple
 
 from util.config_reader import get_wiki_root
 from util.helpers import get_directories, exclude_directories, Dir_tuple
@@ -21,14 +21,14 @@ def parse_args() -> Tuple[List[str], int, List[int], str, bool]:
     :raises
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--exclude", nargs='+',
+    parser.add_argument("--exclude", nargs='+', default=[],
                         help='list of directories names to exclude. Includes all subdirectories. Defaults to config '
                              'file exclusions')
     parser.add_argument("--max-depth", help="maximum depth to build tree", default=10, type=int)
     parser.add_argument("--hide-files", action="store_true",
                         help="Only build the sidebar using directories, hiding files")
     parser.add_argument("--save", action="store_true",
-                        help="save to _Sidebar.md in wiki directory, instead out outputting to stdout")
+                        help="save to _Sidebar.md in wiki directory, instead of outputting to stdout")
     parser.add_argument("--wiki", help="wiki root directory")
     args = parser.parse_args()
 
