@@ -7,8 +7,8 @@ displays them properly.
 
 import logging, os, argparse
 
-from src.util.config_reader import get_wiki_root
-from src.util.helpers import exclude_directories, get_directories, Dir_tuple
+from util.config_reader import get_wiki_root
+from util.helpers import exclude_directories, get_directories, Dir_tuple
 
 logging.basicConfig(level=logging.DEBUG)
 
