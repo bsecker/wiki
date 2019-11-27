@@ -74,6 +74,31 @@ This script will be extended in the future to recursively show subdirectories in
 
 ### Lecture Slides from URL
 
-description of why I made this
+I use my markdown wiki as the central place for all my uni notes. This script was made to automatically download a pdf/pptx of lecture slides as individual images, 
+save them to a folder that corresponds to my uni folder and add the images to a markdown page, putting in some places for me to annotate during lectures.
 
-### script title
+This script is still a work in progress - I going to make it more generic so that it works for more than just me.
+
+```
+usage: pdf_lecture_slide_generator.py [-h] [--output-file OUTPUT_FILE]
+                                      [--password PASSWORD] [--title TITLE]
+                                      [--no-image-directory]
+                                      input {COMP309,SWEN325,ENGR302,SWEN324}
+                                      lecture_num
+
+positional arguments:
+  input                 input pdf file or url
+  {COMP309,SWEN325,ENGR302,SWEN324}
+                        course
+  lecture_num           lecture number (used as ID)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --output-file OUTPUT_FILE
+                        output markdown file
+  --password PASSWORD   pdf file password
+  --title TITLE         Lecture title
+  --no-image-directory  save images to same directory as output file, instead
+                        of images/
+```
+
