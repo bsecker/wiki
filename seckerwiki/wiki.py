@@ -9,6 +9,7 @@ import re
 from datetime import date
 
 from PyInquirer import prompt
+from seckerwiki.install import setup
 
 # Regex to search for tags in the form of <!-- tags: tag1, tag2, etc -->
 # matches the list of tags, relying on string split methods to reduce it into individual tags
@@ -28,10 +29,6 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-# Load custom config if defined in env var
-cfg_file = os.environ['WIKI_CONFIG'] if 'WIKI_CONFIG' in os.environ else '/etc/personal.yml'
-with open(os.path.abspath(cfg_file), 'r') as f:
-    cfg = yaml.safe_load(f)
 
 
 def get_tri_from_course(course, courses):
@@ -44,7 +41,7 @@ def get_tri_from_course(course, courses):
                 return tri.capitalize()
 
 
-def get_latest_lecture_num(course):
+def get_latest_lecture_num(cfg, course):
     """
     Return the latest lecture number from the filenames in course
     """
@@ -73,7 +70,7 @@ def get_latest_lecture_num(course):
 
 
 # Lecture command
-def lecture(args):
+def lecture(cfg, args):
     # merge all courses from every category into a single list
     courses = [item for key in cfg['courses'].keys() for item in cfg['courses'][key]]
 
@@ -110,7 +107,7 @@ def lecture(args):
 
 
 # Commit command
-def commit(args):
+def commit(cfg, args):
     # Change working dir to wiki root
     os.chdir(cfg['wiki-root'])
 
@@ -164,7 +161,7 @@ def commit(args):
     os.system("git commit -am \"{0}\"".format(message))
 
 
-def sync(args):
+def sync(cfg, args):
     """
     git pull and git push
     """
@@ -181,7 +178,7 @@ def sync(args):
 
 
 # Log command
-def log(args):
+def log(cfg, args):
     # Change working dir to wiki root
     os.chdir(cfg['wiki-root'])
 
@@ -190,23 +187,23 @@ def log(args):
 
 
 # Open vscode editor command
-def open_editor(args):
+def open_editor(cfg, args):
     os.system("code {0}".format(cfg['wiki-root']))
 
 
 # Build static files command
-def build(args):
+def build(cfg, args):
     print("Not implemented yet")
 
 
 # Show TODOs command
-def todo(args):
+def todo(cfg, args):
     # Change working dir to wiki root
     os.chdir(cfg['wiki-root'])
     os.system("grep -r \"TODO\" --include \\*.md {0}".format(cfg['wiki-root']))
 
 
-def receipt(args):
+def receipt(cfg, args):
     # Change working dir to wiki root
     os.chdir(cfg['wiki-root'])
     options = [
@@ -227,7 +224,7 @@ def receipt(args):
     # TODO make a popup here choosing the receipt file
 
 
-def journal(args):
+def journal(cfg, args):
     if args.encrypt:
         encrypt_journal(args)
     elif args.decrypt:
@@ -244,7 +241,7 @@ def journal(args):
             print("Generated Empty Entry: ", path)
 
 
-def encrypt_journal(args):
+def encrypt_journal(cfg, args):
     journal_dir = os.path.join(cfg['wiki-root'], cfg['journal-path'])
 
     # check if journal path exists
@@ -267,7 +264,7 @@ def encrypt_journal(args):
             os.remove(os.path.join(root, file))
 
 
-def decrypt_journal(args):
+def decrypt_journal(cfg, args):
     journal_dir = os.path.join(cfg['wiki-root'], cfg['journal-path'])
 
     # check if journal path exists
@@ -281,7 +278,7 @@ def decrypt_journal(args):
     os.system("gpg -d --armor --batch --passphrase {0} {1}".format(cfg['journal-password'], path))
 
 
-def list_tags(args):
+def list_tags(cfg, args):
     # Change working dir to wiki root
     os.chdir(cfg['wiki-root'])
 
@@ -340,19 +337,23 @@ def list_tags(args):
         for filename in matching_files:
             print('    ' + filename)
 
-def links(args):
+def links(cfg, args):
     for link in cfg['links']:
         os.system(f"{cfg['browser-command']} {link}")
 
-if __name__ == "__main__":
+
+def main():
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
-    # Add all the subparsers (todo: clean this up)
+    # Add all the subparsers 
     lecture_parser = subparsers.add_parser('lecture', help='create new lecture slides')
     lecture_parser.add_argument('-b', '--blank', action='store_true', help='Create blank lecture slides.')
     lecture_parser.set_defaults(func=lecture)
+
+    setup_parser = subparsers.add_parser('setup', help='setup wiki CLI')
+    setup_parser.set_defaults(func=setup)
 
     log_parser = subparsers.add_parser('log', help='show git log')
     log_parser.set_defaults(func=log)
@@ -395,6 +396,24 @@ if __name__ == "__main__":
         parser.print_help()
         exit(0)
 
-    # Run the subcommand
-    args.func(args)
+    # run setup script without config
+    if args.func is setup:
+        args.func()
+        sys.exit()
 
+    # Load custom config if defined in env var
+    cfg = None
+    try:
+        cfg_file = os.environ['WIKI_CONFIG'] if 'WIKI_CONFIG' in os.environ else os.path.expanduser('~/.personal.yml')
+        with open(os.path.abspath(cfg_file), 'r') as f:
+            cfg = yaml.safe_load(f)
+    except FileNotFoundError:
+        print("Config file not found at ~/.personal.yml. Have you ran `wiki setup`?")
+        sys.exit(1)
+
+    # Run the subcommand
+    args.func(cfg, args)
+
+
+if __name__ == "__main__":
+    main()
