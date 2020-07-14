@@ -10,10 +10,13 @@ import pdf2image
 from PIL import PngImagePlugin
 import yaml
 
+
 def convert_to_pdf(input_path):
     """
     Use external tools to convert the powerpoint file to a pdf.
-    :return path of converted file
+
+    Returns:
+        path of converted file
     """
     path, extension = os.path.splitext(input_path)
 
@@ -67,9 +70,14 @@ def is_url(_str):
 
 def create_filename(lecture_num, title):
     """
-    :return lecture filename
+    Create a filename from a title string.
+
+    Converts spaces to dashes and makes everything lowercase
+
+    Returns:
+     lecture filename
     """
-    return "lecture-{:02d}{}.md".format(int(lecture_num), "" if not title else '-'+ title.lower().replace(" ", "-"))
+    return "lecture-{:02d}{}.md".format(int(lecture_num), "" if not title else '-' + title.lower().replace(" ", "-"))
 
 
 def create_markdown_header(lecture_num, title, url):
@@ -88,7 +96,7 @@ def get_tri_from_course(course, courses):
                 return tri
 
 
-def get_wiki_folder(config, lecture_num, course, config):
+def get_wiki_folder(config, lecture_num, course):
     """
     Return tuple of (lecture file location, markdown images path)
     """
@@ -99,28 +107,32 @@ def get_wiki_folder(config, lecture_num, course, config):
 
     return [lecture_path, images_path]
 
-def main(args):
-    # load config file
-    try:
-        cfg_file = os.environ['WIKI_CONFIG'] if 'WIKI_CONFIG' in os.environ else os.path.expanduser('~/.personal.yml')
-        with open(cfg_file, 'r') as ymlfile:
-            cfg = yaml.safe_load(ymlfile)
-    except FileNotFoundError:
-        print("Config file not found. Have you ran `wiki setup`?")
 
+def generate_lecture(cfg, pdf: str, course: str, lecture_num: int, title:str=None, blank=False):
+    """
+    Generate markdown based lecture slides from a pdf.
+
+    Args:
+        cfg: config file
+        pdf (str): URL of the PDF or pathname
+        course (str): course code
+        lecture_num (int): lecture number
+        title (str): lecture title
+        blank (bool): whether or not to fill in a blank lecture
+    """
     # combine the possible course selections from both tris
     courses = [item for key in cfg['courses'].keys() for item in cfg['courses'][key]]
 
-    # Cache the downloaded file so it doesn't get deleted with GC
+    # Cache the downloaded file so it doesn't get deleted by GC
     downloaded = None
 
     # Download the file if script was provided a URL
-    if is_url(args.pdf):
-        downloaded = download_file(args.pdf)
+    if is_url(pdf):
+        downloaded = download_file(pdf)
         file = downloaded.name
-        url = args.pdf
+        url = pdf
     else:
-        file = args.pdf
+        file = pdf
         url = None
 
     # convert to pdf if it isn't one already
@@ -139,40 +151,49 @@ def main(args):
         )
     print("done.")
 
-
     # Get paths
-    lecture_path, images_path = get_wiki_folder(config, args.lecture_num, args.course, cfg)
+    lecture_path, images_path = get_wiki_folder(cfg, lecture_num, course)
 
     # create dirs if they don't exist
     if not os.path.exists(images_path):
         os.makedirs(images_path, exist_ok=True)
 
     # Create top of lecture page
-    lecture_markdown = create_markdown_header(args.lecture_num, args.title, url)
+    lecture_markdown = create_markdown_header(lecture_num, title, url)
 
     # Add images to subfolder and lecture page
     for image_num, image in enumerate(images):
-
         # get filenames and paths
-        image_name = "lecture-{0}-{1}.png".format(args.lecture_num, image_num)
+        image_name = "lecture-{0}-{1}.png".format(lecture_num, image_num)
         image_path = os.path.join(images_path, image_name)
 
         # save to file
         image.save(image_path)
 
         # save to markdown
-        lecture_markdown += "![image]({0})\n".format("images/Lecture-{0:02d}/{1}".format(int(args.lecture_num), image_name))
+        lecture_markdown += "![image]({0})\n".format("images/Lecture-{0:02d}/{1}".format(int(lecture_num), image_name))
 
         # add note
         lecture_markdown += "### Slide {0} notes \n\n".format(image_num)
 
     # Finally, write out to the file
-    with open(os.path.join(lecture_path, create_filename(args.lecture_num, args.title)), 'a') as f:
+    with open(os.path.join(lecture_path, create_filename(lecture_num, title)), 'a') as f:
         f.write(lecture_markdown)
 
     print("Generated Lecture in {0}".format(lecture_path))
 
+
 if __name__ == '__main__':
+    # load config file
+    try:
+        cfg_file = os.environ['WIKI_CONFIG'] if 'WIKI_CONFIG' in os.environ else os.path.expanduser('~/.personal.yml')
+        with open(cfg_file, 'r') as ymlfile:
+            cfg = yaml.safe_load(ymlfile)
+    except FileNotFoundError:
+        print("Config file not found. Have you ran `wiki setup`?")
+
+    courses = [item for key in cfg['courses'].keys() for item in cfg['courses'][key]]
+
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("pdf", help="input pdf file or url")
@@ -183,4 +204,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    main()
+    generate_lecture(cfg, args.pdf, args.course, args.lecture_num, args.title, args.blank)

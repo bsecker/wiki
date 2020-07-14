@@ -6,6 +6,8 @@ The main command, `wiki`, has functions for downloading slides, setting labels, 
 
 ## Installation
 
+Install _poppler_ if using a mac with `brew install poppler`
+
 Install the package
 
 ```

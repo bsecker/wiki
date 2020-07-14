@@ -9,7 +9,9 @@ import re
 from datetime import date
 
 from PyInquirer import prompt
+
 from seckerwiki.install import setup
+from seckerwiki.lecture_gen import generate_lecture
 
 # Regex to search for tags in the form of <!-- tags: tag1, tag2, etc -->
 # matches the list of tags, relying on string split methods to reduce it into individual tags
@@ -91,7 +93,7 @@ def lecture(cfg, args):
             'name': 'lecture_num',
             'message': 'Enter lecture number',
             'validate': lambda x: x.isdigit(),
-            'default': lambda answers: get_latest_lecture_num(answers['course'])
+            'default': lambda answers: get_latest_lecture_num(cfg, answers['course'])
         },
         {
             'type': 'input',
@@ -100,11 +102,7 @@ def lecture(cfg, args):
         }
     ]
     answers = prompt(questions)
-    script_path = os.path.join(cfg['wiki-root'], 'Scripts', 'lecture-gen.py')
-    script = f"{script_path} {answers['input_file']} {answers['course']} {answers['lecture_num']} --title \"{answers['title']}\""
-    print(script)
-    os.system(script)
-
+    generate_lecture(cfg, answers['input_file'], answers['course'], answers['lecture_num'], title=answers['title'])
 
 # Commit command
 def commit(cfg, args):
@@ -398,7 +396,7 @@ def main():
 
     # run setup script without config
     if args.func is setup:
-        args.func()
+        setup()
         sys.exit()
 
     # Load custom config if defined in env var
