@@ -23,6 +23,7 @@ links:
   - https://calendar.google.com/calendar/r
   - https://clockify.me/tracker
 browser-command: firefox
+editor-command: code
 """
 
 def setup():

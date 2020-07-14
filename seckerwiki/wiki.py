@@ -186,7 +186,7 @@ def log(cfg, args):
 
 # Open vscode editor command
 def open_editor(cfg, args):
-    os.system("code {0}".format(cfg['wiki-root']))
+    os.system("{0} {1}".format(cfg['editor-command'], cfg['wiki-root']))
 
 
 # Build static files command
@@ -224,9 +224,9 @@ def receipt(cfg, args):
 
 def journal(cfg, args):
     if args.encrypt:
-        encrypt_journal(args)
+        encrypt_journal(cfg, args)
     elif args.decrypt:
-        decrypt_journal(args)
+        decrypt_journal(cfg, args)
     else:
         today = date.today().isoformat()
         filename = 'entry-{0}.md'.format(today)
@@ -236,7 +236,7 @@ def journal(cfg, args):
 
         with open(path, 'a') as f:
             f.write(text)
-            print("Generated Empty Entry: ", path)
+            print("Generated Journal Entry: ", path)
 
 
 def encrypt_journal(cfg, args):
@@ -277,6 +277,8 @@ def decrypt_journal(cfg, args):
 
 
 def list_tags(cfg, args):
+    print(args)
+
     # Change working dir to wiki root
     os.chdir(cfg['wiki-root'])
 
@@ -297,7 +299,11 @@ def list_tags(cfg, args):
             if not filename.endswith(".md"):
                 continue
             with open(os.path.join(root, filename), 'r') as f:
-                line = f.readlines(1)[0]
+                lines = f.readlines(1)
+                if len(lines) == 0: # empty file
+                    continue
+
+                line = lines[0]
 
                 # Apply regex to the line, continuing if no match found
                 match = re.search(TAGS_REGEX, line)
