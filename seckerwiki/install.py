@@ -38,5 +38,5 @@ def setup():
         f.write(EXAMPLE_CONTENTS)
     os.chmod(path,0o600)
 
-    print("Configuration file written to `~/personal.yml`!")
+    print("Configuration file written to `~/.personal.yml`!")
     print("Edit this file to set the wiki root path and other settings")

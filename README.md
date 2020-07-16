@@ -6,15 +6,19 @@ The main command, `wiki`, has functions for downloading slides, setting labels, 
 
 ## Installation
 
-Install _poppler_ if using a mac with `brew install poppler`
+Dependencies: 
 
-Install the package
+- _poppler_ if using a mac (`brew install poppler`)
+- _unoconv_ for converting pptx to pdf ([link](https://github.com/unoconv/unoconv))
+- _gpg_ for journal encryption/decryption
+
+Install the package & pip dependencies
 
 ```
 pip install --user seckerwiki
 ```
 
-Add the scripts path to your `$PATH` variable, as described in the pip install logs
+(mac only?) Add the scripts path to your `$PATH` variable, as described in the pip install logs
 
 ```shell script
 export PATH=$PATH:/path/to/wiki/scripts
@@ -46,6 +50,11 @@ wiki_root/
     Uni/
         General/
         Tri-1/
+            COURSE_CODE/
+                Lectures/
+                    images/
+                    lecture-01-name.md
+                Assignments/
         Tri-2/
         Full-Year/
     Scripts/

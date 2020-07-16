@@ -177,10 +177,11 @@ def generate_lecture(cfg, pdf: str, course: str, lecture_num: int, title:str=Non
         lecture_markdown += "### Slide {0} notes \n\n".format(image_num)
 
     # Finally, write out to the file
-    with open(os.path.join(lecture_path, create_filename(lecture_num, title)), 'a') as f:
+    filename = os.path.join(lecture_path, create_filename(lecture_num, title))
+    with open(filename, 'a') as f:
         f.write(lecture_markdown)
 
-    print("Generated Lecture in {0}".format(lecture_path))
+    print("Generated Lecture in {0}".format(filename))
 
 
 if __name__ == '__main__':
