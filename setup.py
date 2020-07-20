@@ -9,7 +9,7 @@ with open(path.join(this_directory, 'README.md')) as f:
 
 setup(
     name="seckerwiki",
-    version="1.1.1",
+    version="1.1.2",
     packages=find_packages(),
     author="Benjamin Secker",
     author_email="Benjamin.secker@gmail.com",
@@ -24,7 +24,7 @@ setup(
         'PyInquirer',
         'pyyaml',
         'pdf2image==1.5.4',
-        'Pillow==6.0.0',
+        'Pillow==6.2.2',
         'requests'
     ],
     entry_points={
