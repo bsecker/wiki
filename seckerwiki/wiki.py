@@ -172,7 +172,7 @@ def sync(cfg, args):
     # print("Encrypting Journal...")
     # encrypt_journal(None)
 
-    os.system("git pull && git push")
+    os.system("git pull -r && git push")
 
 
 # Log command
@@ -412,7 +412,7 @@ def main():
         with open(os.path.abspath(cfg_file), 'r') as f:
             cfg = yaml.safe_load(f)
     except FileNotFoundError:
-        print("Config file not found at ~/.personal.yml. Have you ran `wiki setup`?")
+        print("Config file not found at ~/.personal.yml or defined in $WIKI_CONFIG. Have you ran `wiki setup`?")
         sys.exit(1)
 
     # Run the subcommand
