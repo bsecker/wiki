@@ -184,6 +184,7 @@ def log(cfg, args):
         "git log --graph --pretty=\"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset\" --abbrev-commit")
 
 def status(cfg, args):
+    os.chdir(cfg['wiki-root'])
     os.system("git status")
 
 # Open vscode editor command
@@ -363,7 +364,7 @@ def main():
 
     log_parser = subparsers.add_parser('log', help='show git log')
     log_parser.set_defaults(func=log)
-    
+
     status_parser = subparsers.add_parser('status', help='show git status')
     status_parser.set_defaults(func=status)
 

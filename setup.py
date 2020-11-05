@@ -9,7 +9,7 @@ with open(path.join(this_directory, 'README.md')) as f:
 
 setup(
     name="seckerwiki",
-    version="1.1.3",
+    version="1.1.4",
     packages=find_packages(),
     author="Benjamin Secker",
     author_email="Benjamin.secker@gmail.com",
