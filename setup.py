@@ -24,7 +24,7 @@ setup(
         'PyInquirer',
         'pyyaml',
         'pdf2image==1.5.4',
-        'Pillow==6.2.2',
+        'Pillow==8.2.0',
         'requests'
     ],
     entry_points={
