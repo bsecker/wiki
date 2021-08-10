@@ -2,6 +2,7 @@
 .idea/
 .github/
 venv/
+__pycache__/
 
 # Compiled python modules.
 *.pyc
