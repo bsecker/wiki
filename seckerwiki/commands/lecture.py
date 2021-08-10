@@ -4,7 +4,7 @@ import re
 
 from PyInquirer import prompt
 
-from seckerwiki.lecture_gen import generate_lecture
+from seckerwiki.scripts.lecture_gen import generate_lecture
 
 
 def lecture(cfg, args):

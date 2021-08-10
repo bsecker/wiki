@@ -7,7 +7,6 @@ import os
 from datetime import date
 
 import pdf2image
-from PIL import PngImagePlugin
 import yaml
 
 
