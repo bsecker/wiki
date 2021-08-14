@@ -10,5 +10,7 @@ class bcolors:
   BOLD = '\033[1m'
   UNDERLINE = '\033[4m'
 
-def get_cfg_file():
-  cfg_file = os.environ['WIKI_CONFIG'] if 'WIKI_CONFIG' in os.environ else os.path.expanduser('wiki.yml')
+def get_journal_key():
+  """
+  :return the symmetric key stored in ~/.config/seckerwiki/credentials
+  """

@@ -10,14 +10,15 @@ from commands.receipt import receipt
 from commands.journal import journal
 from commands.setup import setup
 
-from util import get_cfg_file
-
 def main():
 
   parser = argparse.ArgumentParser()
-  subparsers = parser.add_subparsers()
+
+  # Global arguments
+  parser.add_argument("-c", "--config", help="custom path to wiki config file", default=None)
 
   # Add all the subparsers 
+  subparsers = parser.add_subparsers()
   lecture_parser = subparsers.add_parser('lecture', help='create new lecture slides')
   lecture_parser.add_argument('-b', '--blank', action='store_true', help='Create blank lecture slides.')
   lecture_parser.set_defaults(func=lecture)
@@ -49,18 +50,24 @@ def main():
 
   # run setup script without config
   if args.func is setup:
-    setup()
+    setup() 
     sys.exit()
 
   # Load custom config if defined in env var
   cfg = None
   try:
-    cfg_file = os.environ['WIKI_CONFIG'] if 'WIKI_CONFIG' in os.environ else os.path.expanduser('wiki.yml')
+    cfg_file = os.path.expanduser(args.config) if args.config else os.path.join(os.getcwd(), "wiki.yml")
     with open(os.path.abspath(cfg_file), 'r') as f:
       cfg = yaml.safe_load(f)
   except FileNotFoundError:
-    print("Config file not found at ~/.personal.yml or defined in $WIKI_CONFIG. Have you ran `wiki setup`?")
+    print(f"Config file not found at {cfg_file}. Have you ran `wiki setup`?")
     sys.exit(1)
+
+  # Change directory if custom dir provided
+  if args.config:
+    path = os.path.abspath(os.path.dirname(os.path.expanduser(args.config)))
+    print(f"Running command in {path}")
+    os.chdir(path)
 
   # Run the subcommand
   args.func(cfg, args)

@@ -4,9 +4,6 @@ from PyInquirer import prompt
 
 # Commit command
 def commit(cfg, args):
-  # Change working dir to wiki root
-  os.chdir(cfg['wiki-root'])
-
   """
   Commit the files
   args:
@@ -63,9 +60,6 @@ def sync(cfg, args):
   """
   print("Syncing...")
 
-  # Change working dir to wiki root
-  os.chdir(cfg['wiki-root'])
-
   # Forcefully encrypt the journal
   # print("Encrypting Journal...")
   # encrypt_journal(None)
@@ -75,8 +69,5 @@ def sync(cfg, args):
 
 # Log command
 def log(cfg, args):
-  # Change working dir to wiki root
-  os.chdir(cfg['wiki-root'])
-
   os.system(
     "git log --graph --pretty=\"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset\" --abbrev-commit")

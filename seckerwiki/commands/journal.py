@@ -11,18 +11,25 @@ def journal(cfg, args):
   elif args.decrypt:
     decrypt_journal(cfg, args)
   else:
-    today = date.today().isoformat()
-    filename = 'entry-{0}.md'.format(today)
-    text = '# Journal Entry -  {0}\n\n - '.format(today)
+    generate_note(cfg, args)
 
-    path = os.path.join(cfg['wiki-root'], cfg['journal-path'], filename)
 
-    with open(path, 'a') as f:
-      f.write(text)
-      print("Generated Journal Entry: ", path)
+def generate_note(cfg, args):
+  """
+  Generate an empty note
+  """
+  today = date.today().isoformat()
+  filename = '{0}.md'.format(today)
+  text = '# Encrypted Note -  {0}\n\n - '.format(today)
+
+  path = os.path.join(cfg['encrypted-journal-path'], filename)
+
+  with open(path, 'a') as f:
+    f.write(text)
+    print("Generated Journal Entry: ", path)
 
 def encrypt_journal(cfg, args):
-  journal_dir = os.path.join(cfg['wiki-root'], cfg['journal-path'])
+  journal_dir = cfg['encrypted-journal-path']
 
   # check if journal path exists
   if not os.path.isdir(journal_dir):
