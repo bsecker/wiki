@@ -1,3 +1,6 @@
+"""
+This is pretty outdated and is only kept for reference - see scripts/lecture_gen.py 
+"""
 import glob
 import os
 import re
