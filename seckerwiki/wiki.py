@@ -19,9 +19,11 @@ def main():
 
   # Add all the subparsers 
   subparsers = parser.add_subparsers()
-  lecture_parser = subparsers.add_parser('lecture', help='create new lecture slides')
-  lecture_parser.add_argument('-b', '--blank', action='store_true', help='Create blank lecture slides.')
-  lecture_parser.set_defaults(func=lecture)
+
+  # Disabled because I don't need lecture functionality anymore
+  # lecture_parser = subparsers.add_parser('lecture', help='create new lecture slides')
+  # lecture_parser.add_argument('-b', '--blank', action='store_true', help='Create blank lecture slides.')
+  # lecture_parser.set_defaults(func=lecture)
 
   setup_parser = subparsers.add_parser('setup', help='setup wiki CLI')
   setup_parser.set_defaults(func=setup)

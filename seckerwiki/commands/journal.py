@@ -1,9 +1,9 @@
 import os
 from datetime import date
 import sys
+import getpass
 
-from seckerwiki.util import bcolors
-
+from seckerwiki.util import bcolors, get_journal_key
 
 def journal(cfg, args):
   if args.encrypt:
@@ -29,7 +29,7 @@ def generate_note(cfg, args):
     print("Generated Journal Entry: ", path)
 
 def encrypt_journal(cfg, args):
-  journal_dir = cfg['encrypted-journal-path']
+  journal_dir = os.path.join(os.getcwd(), cfg['encrypted-journal-path'])
 
   # check if journal path exists
   if not os.path.isdir(journal_dir):
@@ -46,13 +46,13 @@ def encrypt_journal(cfg, args):
 
       print("Encrypting: {0}{1}{2}".format(bcolors.OKGREEN, file, bcolors.ENDC))
       os.system(
-        "gpg -c --armor --batch --passphrase {0} {1}".format(cfg['journal-password'], os.path.join(root, file)))
+        "gpg -c --armor --batch --passphrase {0} {1}".format(get_journal_key(), os.path.join(root, file)))
       # delete the markdown file
       os.remove(os.path.join(root, file))
 
 
 def decrypt_journal(cfg, args):
-  journal_dir = os.path.join(cfg['wiki-root'], cfg['journal-path'])
+  journal_dir = os.path.join(os.getcwd(), cfg['encrypted-journal-path'])
 
   # check if journal path exists
   if not os.path.isdir(journal_dir):
@@ -62,4 +62,10 @@ def decrypt_journal(cfg, args):
   path = os.path.abspath(args.decrypt)
 
   print("Decrypting Journal Entry: {0}{1}{2}".format(bcolors.OKGREEN, path, bcolors.ENDC), file=sys.stderr)
-  os.system("gpg -d --armor --batch --passphrase {0} {1}".format(cfg['journal-password'], path))
+  return_value = os.system("gpg -d --armor --batch --passphrase {0} {1}".format(get_journal_key(), path))
+
+  if (return_value >> 8) != 0:
+    # decryption failed, ask for password
+    password = getpass.getpass(prompt="Decryption failed. Manually enter password: ")
+
+    os.system("gpg -d --armor --batch --passphrase {0} {1}".format(password, path))

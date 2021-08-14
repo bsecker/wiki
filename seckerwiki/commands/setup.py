@@ -5,8 +5,8 @@ import os
 import getpass
 
 EXAMPLE_CONTENTS = """---
-encrypted-journal-path: Personal/Personal/Management/Journal
-receipts-path: Personal/Personal/Management/Receipts
+encrypted-journal-path: Personal/Personal-Management/Journal/Encrypted
+receipts-path: Personal/Personal-Management/Receipts
 """
 
 AUTH_CONTENTS = """---
