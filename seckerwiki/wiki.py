@@ -10,6 +10,7 @@ from commands.receipt import receipt
 from commands.journal import journal
 from commands.setup import setup
 from commands.toc import toc
+from commands.stats import stats
 
 def main():
 
@@ -46,6 +47,9 @@ def main():
 
   toc_parser = subparsers.add_parser('toc', help='generate table of contents in files')
   toc_parser.set_defaults(func=toc)
+
+  stats_parser = subparsers.add_parser('stats', help="wiki stats")
+  stats_parser.set_defaults(func=stats)
 
   args = parser.parse_args()
 
