@@ -4,13 +4,13 @@ import os
 import sys
 import yaml
 
-from commands.lecture import lecture
-from commands.git import commit, log, sync
-from commands.receipt import receipt
-from commands.journal import journal
-from commands.setup import setup
-from commands.toc import toc
-from commands.stats import stats
+from seckerwiki.commands.lecture import lecture
+from seckerwiki.commands.git import commit, log, sync
+from seckerwiki.commands.receipt import receipt
+from seckerwiki.commands.journal import journal
+from seckerwiki.commands.setup import setup
+from seckerwiki.commands.toc import toc
+from seckerwiki.commands.stats import stats
 
 def main():
 

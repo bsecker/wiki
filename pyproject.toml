@@ -1,8 +1,14 @@
 [tool.poetry]
 name = "seckerwiki"
-version = "2.0.0"
+version = "2.0.2"
 description = "A collection of scripts used to manage my personal Foam workspace"
 authors = ["Benjamin Secker <benjamin.secker@gmail.com>"]
+repository = "https://github.com/bsecker/wiki/"
+documentation = "https://github.com/bsecker/wiki/blob/master/README.md"
+readme = "README.md"
+
+[tool.poetry.scripts]
+wiki = "seckerwiki.wiki:main"
 
 [tool.poetry.dependencies]
 python = "^3.6"
