@@ -9,6 +9,7 @@ from commands.git import commit, log, sync
 from commands.receipt import receipt
 from commands.journal import journal
 from commands.setup import setup
+from commands.toc import toc
 
 def main():
 
@@ -40,8 +41,11 @@ def main():
 
   journal_parser = subparsers.add_parser('journal', help='make journal entry')
   journal_parser.add_argument('-e', '--encrypt', action='store_true', help='encrypt all unencrypted journal entries')
-  journal_parser.add_argument('-d', '--decrypt', help='decrypt journal entry')
+  journal_parser.add_argument('-d', '--decrypt', help='decrypt filename')
   journal_parser.set_defaults(func=journal)
+
+  toc_parser = subparsers.add_parser('toc', help='generate table of contents in files')
+  toc_parser.set_defaults(func=toc)
 
   args = parser.parse_args()
 

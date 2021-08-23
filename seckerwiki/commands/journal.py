@@ -52,14 +52,12 @@ def encrypt_journal(cfg, args):
 
 
 def decrypt_journal(cfg, args):
-  journal_dir = os.path.join(os.getcwd(), cfg['encrypted-journal-path'])
+  path = os.path.join(os.getcwd(), cfg['encrypted-journal-path'], args.decrypt)
 
-  # check if journal path exists
-  if not os.path.isdir(journal_dir):
-    print("Journal directory not found: {0}".format(journal_dir))
+  # check if entry path exists
+  if not os.path.isfile(path):
+    print("Journal entry not found: {0}".format(path))
     return
-
-  path = os.path.abspath(args.decrypt)
 
   print("Decrypting Journal Entry: {0}{1}{2}".format(bcolors.OKGREEN, path, bcolors.ENDC), file=sys.stderr)
   return_value = os.system("gpg -d --armor --batch --passphrase {0} {1}".format(get_journal_key(), path))

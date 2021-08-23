@@ -31,3 +31,29 @@ def get_journal_key():
     if not 'password' in auth or auth['password'] is None or auth['password'] == "":
       raise NoPasswordError(f"Password isn't defined in credentials file! ({path})")
     return auth['password']
+
+def file_contains_markers(path, start, end):
+  """
+  :return true if both :start and :end are in the file 
+  """
+
+  with open(path, 'r') as f_in:
+    contents = f_in.read()
+    return start in contents and end in contents
+
+def replace_between_markers(file, start, end, content):
+  # TODO check if content is the same - if it is, skip
+  with open(file, 'r') as f_in:
+    contents = f_in.readlines()
+
+  start_line = contents.index(start)+1
+  end_line = contents.index(end)
+
+  del contents[start_line:end_line]
+
+  contents.insert(start_line, content)
+  
+  with open(file, 'w') as f_out:
+    f_out.writelines(contents)
+
+  
