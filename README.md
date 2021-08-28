@@ -84,3 +84,8 @@ Prints some cool stats about the wiki:
 - `commits made`
 - `total lines` (non-empty lines in `.md` files)
 - `largest files` - paths to the top 3 longest `.md` files
+
+
+## Developing
+
+I use [poetry](https://python-poetry.org/) for building/publishing the package. Read their docs.
