@@ -29,6 +29,9 @@ def commit(cfg, args):
     print("No files detected")
     return
 
+  if args.add:
+    subprocess.run(['git','add','-all'])
+
   # Make a message using the filenames. If its too long,
   # Set the commit title to the root folders, then the commit description to each of the files changed
   message = " ".join([pair[1] for pair in changed])

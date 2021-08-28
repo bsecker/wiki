@@ -17,7 +17,7 @@ def main():
   parser = argparse.ArgumentParser()
 
   # Global arguments
-  parser.add_argument("-c", "--config", help="custom path to wiki config file", default=None)
+  # parser.add_argument("-c", "--config", help="custom path to wiki config file", default=None)
 
   # Add all the subparsers 
   subparsers = parser.add_subparsers()
@@ -35,6 +35,7 @@ def main():
 
   commit_parser = subparsers.add_parser('commit', help='commit wiki')
   commit_parser.add_argument('-y', action='store_true', help='Don\'t ask for confirmation before committing')
+  commit_parser.add_argument('-a', action='store_true', help='Add all modified and unstaged files not gitignored')
   commit_parser.set_defaults(func=commit)
 
   sync_parser = subparsers.add_parser('sync', help='sync with remote repo')
@@ -63,21 +64,17 @@ def main():
     setup() 
     sys.exit()
 
-  # Load custom config if defined in env var
   cfg = None
   try:
-    cfg_file = os.path.expanduser(args.config) if args.config else os.path.join(os.getcwd(), "wiki.yml")
+    cfg_file = os.path.expanduser("~/.config/seckerwiki/config.yml")
     with open(os.path.abspath(cfg_file), 'r') as f:
       cfg = yaml.safe_load(f)
   except FileNotFoundError:
     print(f"Config file not found at {cfg_file}. Have you ran `wiki setup`?")
     sys.exit(1)
 
-  # Change directory if custom dir provided
-  if args.config:
-    path = os.path.abspath(os.path.dirname(os.path.expanduser(args.config)))
-    print(f"Running command in {path}")
-    os.chdir(path)
+  # Change directory
+  os.chdir(cfg['wiki-root'])
 
   # Run the subcommand
   args.func(cfg, args)

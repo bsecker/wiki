@@ -29,11 +29,9 @@ def toc(cfg, args):
       if file_contains_markers(file_path, TOC_START, TOC_END):
         toc = generate_toc(root, dirs, files)
 
-        replace_between_markers(file_path, TOC_START, TOC_END, toc)
+        count += replace_between_markers(file_path, TOC_START, TOC_END, toc)
 
-        count += 1
-
-  print(f"Updated {count} files. Make sure to re-run `foam janitor` to update link compatibility.")
+  print(f"Updated {count} files.")
 
 def generate_toc(root, subdirs, files):
   # Generate directory links. My standard is to have a "contents-page" with the same name (lowercased) of the directory it's contained in

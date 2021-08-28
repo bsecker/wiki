@@ -1,3 +1,4 @@
+from argparse import ArgumentError
 import os
 import yaml
 
@@ -41,19 +42,31 @@ def file_contains_markers(path, start, end):
     contents = f_in.read()
     return start in contents and end in contents
 
-def replace_between_markers(file, start, end, content):
-  # TODO check if content is the same - if it is, skip
+def replace_between_markers(file: str, start: int, end: int, content: str) -> bool:
+  """
+  Replaces the content between :start and :end with :content in :file
+
+  Returns True if changed 
+  """
+
+  if not content:
+    raise ArgumentError("No content supplied")
+
   with open(file, 'r') as f_in:
     contents = f_in.readlines()
+    contents_old = contents.copy()
 
   start_line = contents.index(start)+1
   end_line = contents.index(end)
 
   del contents[start_line:end_line]
 
-  contents.insert(start_line, content)
+  # insert line by line (this does put an extra \n at the end, but w/e)
+  for line_num, line in enumerate(content.split("\n")):
+    contents.insert(start_line + line_num, line+"\n")
   
   with open(file, 'w') as f_out:
     f_out.writelines(contents)
 
+  return contents != contents_old
   
