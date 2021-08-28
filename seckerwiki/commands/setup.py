@@ -5,8 +5,14 @@ import os
 import getpass
 
 EXAMPLE_CONTENTS = """---
+wiki-root: ~/path/to/wiki
 encrypted-journal-path: Personal/Personal-Management/Journal/Encrypted
 receipts-path: Personal/Personal-Management/Receipts
+toc-excluded-dirs:
+  - images
+  - uploads
+  - .git
+  - venv
 """
 
 AUTH_CONTENTS = """---
@@ -18,8 +24,8 @@ def setup():
   """
   Create config file and auth file
   """
-  cfg_path =  os.path.join(os.getcwd(), "wiki.yml")
-  auth_path = os.path.expanduser("~/.config/seckerwiki/credentials")
+  auth_path = os.path.expanduser("~/.config/seckerwiki/credentials.yml")
+  cfg_path = os.path.expanduser("~/.config/seckerwiki/config.yml")
 
   if os.path.exists(cfg_path):
     print(f"Error: seckerwiki config file already exists at {cfg_path}")
