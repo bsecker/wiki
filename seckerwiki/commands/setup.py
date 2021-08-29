@@ -6,8 +6,8 @@ import getpass
 
 EXAMPLE_CONTENTS = """---
 wiki-root: ~/path/to/wiki
-encrypted-journal-path: Personal/Personal-Management/Journal/Encrypted
-receipts-path: Personal/Personal-Management/Receipts
+encrypted-journal-path: Personal/Life/Journal/Encrypted
+receipts-path: Personal/Life/Receipts
 toc-excluded-dirs:
   - images
   - uploads
