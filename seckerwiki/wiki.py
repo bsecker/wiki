@@ -5,7 +5,7 @@ import sys
 import yaml
 
 from seckerwiki.commands.lecture import lecture
-from seckerwiki.commands.git import commit, log, sync
+from seckerwiki.commands.git import commit, log, sync, status
 from seckerwiki.commands.receipt import receipt
 from seckerwiki.commands.journal import journal
 from seckerwiki.commands.setup import setup
@@ -33,9 +33,12 @@ def main():
   log_parser = subparsers.add_parser('log', help='show git log')
   log_parser.set_defaults(func=log)
 
+  status_parser = subparsers.add_parser('status', help='show git status')
+  status_parser.set_defaults(func=status)
+
   commit_parser = subparsers.add_parser('commit', help='commit wiki')
   commit_parser.add_argument('-y', action='store_true', help='Don\'t ask for confirmation before committing')
-  commit_parser.add_argument('-a', action='store_true', help='Add all modified and unstaged files not gitignored')
+  commit_parser.add_argument('-a', '--add', action='store_true', help='Add all modified and unstaged files not gitignored')
   commit_parser.set_defaults(func=commit)
 
   sync_parser = subparsers.add_parser('sync', help='sync with remote repo')

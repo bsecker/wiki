@@ -32,6 +32,9 @@ Edit the credentials file to add a secret passsword used for decrypting your Jou
 
 Alias for git log, with some pretty graph options.
 
+### status
+
+Runs `git status`. Basically just a convenience function, so you don't have to `cd` into a wiki dir.
 
 ### commit 
 

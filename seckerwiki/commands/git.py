@@ -2,12 +2,16 @@ import os
 import subprocess
 from PyInquirer import prompt
 
+def status(cfg, args):
+  subprocess.run(['git', 'status'])
+
 # Commit command
 def commit(cfg, args):
   """
   Commit the files
   args:
   -y : don't confirm
+  -a, --add: add all unstaged files
   """
 
   def convert(line):
@@ -30,7 +34,7 @@ def commit(cfg, args):
     return
 
   if args.add:
-    subprocess.run(['git','add','-all'])
+    subprocess.run(['git','add','--all'])
 
   # Make a message using the filenames. If its too long,
   # Set the commit title to the root folders, then the commit description to each of the files changed
