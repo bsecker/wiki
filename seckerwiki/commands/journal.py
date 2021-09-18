@@ -26,7 +26,7 @@ def generate_note(cfg, args):
 
   with open(path, 'a') as f:
     f.write(text)
-    print("Generated Journal Entry: ", path)
+    print("Generated Journal Entry: ", os.path.join(cfg['wiki-root'], path))
 
 def encrypt_journal(cfg, args):
   journal_dir = os.path.join(os.getcwd(), cfg['encrypted-journal-path'])
