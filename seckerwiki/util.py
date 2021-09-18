@@ -21,7 +21,7 @@ def get_journal_key():
   """
   :return the symmetric key stored in ~/.config/seckerwiki/credentials
   """
-  path = os.path.expanduser("~/.config/seckerwiki/credentials")
+  path = os.path.expanduser("~/.config/seckerwiki/credentials.yml")
 
   if not os.path.exists(path):
     raise FileNotFoundError(f"Couldn't find credentials file at {path}")

@@ -3,6 +3,7 @@ functions for setting up seckerwiki
 """
 import os
 import getpass
+import pathlib
 
 EXAMPLE_CONTENTS = """---
 wiki-root: ~/path/to/wiki
@@ -34,6 +35,11 @@ def setup():
   if os.path.exists(auth_path):
     print(f"Error: seckerwiki auth file already exists at {auth_path}")
     return False
+
+  # make directories
+  # todo: now that using pathlib, can we simplify other stuff
+  path = pathlib.Path(cfg_path)
+  path.parent.mkdir(parents=True, exist_ok=True)
     
   with open(cfg_path, 'w') as f:
       f.write(EXAMPLE_CONTENTS)

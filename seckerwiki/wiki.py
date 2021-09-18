@@ -77,7 +77,7 @@ def main():
     sys.exit(1)
 
   # Change directory
-  os.chdir(cfg['wiki-root'])
+  os.chdir(os.path.expanduser(cfg['wiki-root']))
 
   # Run the subcommand
   args.func(cfg, args)
