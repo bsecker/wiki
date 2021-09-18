@@ -11,10 +11,10 @@ Version `1.x` had requirements for extra dependencies to get the lecture-to-mark
 pip3 install seckerwiki
 ```
 
-Once installed, run this command in the root of your wiki repo:
+Once installed, run this command to generate the config files:
 
 ```
-seckerwiki setup
+wiki setup
 ```
 
 ## Commands
