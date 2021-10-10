@@ -29,7 +29,11 @@ def toc(cfg, args):
       if file_contains_markers(file_path, TOC_START, TOC_END):
         toc = generate_toc(root, dirs, files)
 
-        count += replace_between_markers(file_path, TOC_START, TOC_END, toc)
+        # If changed, increment count and print the file that was changed
+        updated = replace_between_markers(file_path, TOC_START, TOC_END, toc)
+        if updated:
+          print(file_path)
+          count += 1
 
   print(f"Updated {count} files.")
 
