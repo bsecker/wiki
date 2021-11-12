@@ -84,8 +84,9 @@ Pages:
 
 Prints some cool stats about the wiki:
 
-- `commits made`
-- `total lines` (non-empty lines in `.md` files)
+- `commits made` - number of git commits since repo was created
+- `Number of notes` - number of markdown files in repo
+- `total lines` - non-empty lines in `.md` files
 - `largest files` - paths to the top 3 longest `.md` files
 
 
