@@ -80,6 +80,8 @@ Pages:
 <!--END_TOC-->
 ```
 
+This is used primarily so [Foam](https://foambubble.github.io/foam/features/graph-visualisation.html) can build a graph that collects pages within a folder together by a node.
+
 ### stats
 
 Prints some cool stats about the wiki:

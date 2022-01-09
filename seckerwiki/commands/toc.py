@@ -19,15 +19,15 @@ def toc(cfg, args):
 
   for root, dirs, files in os.walk(os.getcwd()):
     # filter out excluded dirs https://stackoverflow.com/questions/19859840/excluding-directories-in-os-walk
-    dirs[:] = [d for d in dirs if d not in excluded_dirs]
+    dirs[:] = [d for d in sorted(dirs) if d not in excluded_dirs]
 
     # filter to markdown files
-    md_files = [file for file in files if file.endswith(".md")]
+    md_files = [file for file in sorted(files) if file.endswith(".md")]
 
     for _file in md_files:
       file_path = os.path.join(root, _file)
       if file_contains_markers(file_path, TOC_START, TOC_END):
-        toc = generate_toc(root, dirs, files)
+        toc = generate_toc(root, dirs, md_files)
 
         # If changed, increment count and print the file that was changed
         updated = replace_between_markers(file_path, TOC_START, TOC_END, toc)
